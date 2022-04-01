@@ -27,7 +27,7 @@ program example
             call reader%open('file.txt', error)
             if (allocated(error)) exit fallible
             do while (reader%has_next())
-                call reader%read_line(line, error)
+                call reader%next(line, error)
                 if (allocated(error)) exit fallible
                 write(*, '(a)') 'Got line: "' // line // '"'
             end do

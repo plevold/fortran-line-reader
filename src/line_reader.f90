@@ -10,27 +10,25 @@ module line_reader_mod
 
     type :: line_reader_t
         private
-        ! Buffer capacity
-        integer :: cap = 8192
         ! Search for Windows newlines (CRLF)?
         logical :: win_newline = .true.
         ! Search for Linux newlines (LF)?
         logical :: linux_newline = .true.
+        ! File unit
+        integer :: unit
+        ! File opened?
+        logical :: opened = .false.
+        ! Was EOF reach during last read?
+        logical :: eof_reached = .false.
         ! Buffer to read data into
         character(len=:), allocatable :: buffer
         ! Start position of current data in buffer
         integer :: start = 0
         ! End position of current data in buffer
         integer :: end = 0
-        ! Was EOF reach during last read?
-        logical :: eof_reached = .false.
-        ! File unit
-        integer :: unit
-        ! File opened?
-        logical :: opened = .false.
     contains
         procedure :: open
-        procedure :: read_line
+        procedure :: next
         procedure :: has_next
         procedure :: close
         final :: finalize
@@ -109,8 +107,8 @@ contains
     end subroutine
 
 
-    !> Read a line from the opened file
-    subroutine read_line(this, line, error)
+    !> Return the next line from the opened file
+    subroutine next(this, line, error)
         class(line_reader_t), intent(inout) :: this
         !> Line read from file
         character(len=:), allocatable, intent(out) :: line

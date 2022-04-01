@@ -15,8 +15,8 @@ contains
     subroutine test_line_reader()
         call set_up
         call read_should_fail_if_not_initialized
-        call read_lines_from_lf_file
-        call read_lines_from_crlf_file
+        call nexts_from_lf_file
+        call nexts_from_crlf_file
         call read_lf_with_default_buffer_size
         call read_crlf_with_default_buffer_size
         call read_after_eof_should_fail
@@ -77,12 +77,12 @@ contains
         character(len=:), allocatable :: line
         type(error_t), allocatable :: error
 
-        call reader%read_line(line, error)
-        if (.not. allocated(error)) error stop 'Expected read_line to fail'
+        call reader%next(line, error)
+        if (.not. allocated(error)) error stop 'Expected next to fail'
     end subroutine
 
 
-    subroutine read_lines_from_lf_file()
+    subroutine nexts_from_lf_file()
         type(line_reader_t) :: reader
         type(error_t), allocatable :: error
 
@@ -93,7 +93,7 @@ contains
     end subroutine
 
 
-    subroutine read_lines_from_crlf_file()
+    subroutine nexts_from_crlf_file()
         type(line_reader_t) :: reader
         type(error_t), allocatable :: error
 
@@ -132,16 +132,16 @@ contains
         fallible: block
             call reader%open('default_file.txt', error)
             if (allocated(error)) exit fallible
-            call reader%read_line(line, error)
+            call reader%next(line, error)
             if (allocated(error)) exit fallible
-            call reader%read_line(line, error)
+            call reader%next(line, error)
             if (allocated(error)) exit fallible
-            call reader%read_line(line, error)
+            call reader%next(line, error)
             if (allocated(error)) exit fallible
         end block fallible
         if (allocated(error)) error stop 'Unexpected error: ' // error%display()
 
-        call reader%read_line(line, error)
+        call reader%next(line, error)
         if (.not. allocated(error)) error stop 'Expected error after EOF'
     end subroutine
 
@@ -152,13 +152,13 @@ contains
         type(error_t), allocatable :: error
 
         fallible: block
-            call reader%read_line(line, error)
+            call reader%next(line, error)
             if (allocated(error)) exit fallible
             if (line /= 'A short line') error stop 'Unexpected line (1): "' // line // '"'
-            call reader%read_line(line, error)
+            call reader%next(line, error)
             if (allocated(error)) exit fallible
             if (line /= 'Another short line') error stop 'Unexpected line (2): "' // line // '"'
-            call reader%read_line(line, error)
+            call reader%next(line, error)
             if (allocated(error)) exit fallible
             if (line /= 'A line that is very long so that will hopefully exceed a buffer capacity of 64 bytes') &
                     error stop 'Unexpected line (3): "' // line // '"'
